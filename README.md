@@ -11,5 +11,8 @@ In this project, price of a particular product is tracked in amazon. Once the pr
 - [Web scrapping tutorial](https://www.youtube.com/live/fSE5SsLPHNs?feature=share)
 - [How to send mails using python](https://youtu.be/g_j6ILT-X0k)
 
+## Author
+- Prepared by Aniketh Sridhar Gund, IIT Kharagpur
+
 
 
