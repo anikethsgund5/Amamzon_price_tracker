@@ -1,5 +1,7 @@
 #import all the required modules
 import requests
+# for taking command line inputs of url and desired price from user
+import argparse
 # this is the main library for scrapping data
 from bs4 import BeautifulSoup 
 import pandas as pd
@@ -16,25 +18,34 @@ import smtplib
 import time
 %matplotlib inline
 
-#The main URL of the product, whose price must be monitered
-url="https://www.amazon.in/Apple-iPhone-11-64GB-Product/dp/B07XVKG5XV/ref=sr_1_2_sspa?crid=3I1XCD2J1MZZB&keywords=iphone+13&qid=1686830955&sprefix=iphone%2Caps%2C403&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1"
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Amazon Price Tracker')
+parser.add_argument('--url', type=str, help='URL of the product to track')
+parser.add_argument('--desired_price', type=float, help='Desired price for the product')
+args = parser.parse_args()
+
+# Ensure the required arguments are provided
+if not args.url or not args.desired_price:
+    parser.error('Both --url and --desired_price are required.')
+
 
 #Same URL but now stored in link as string
-link = 'https://www.amazon.in/Apple-iPhone-11-64GB-Product/dp/B07XVKG5XV/ref=sr_1_2_sspa?crid=3I1XCD2J1MZZB&keywords=iphone+13&qid=1686830955&sprefix=iphone%2Caps%2C403&sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1'
+link = args.url
 
 #header for Mozilla browser
 headers={"user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/114.0"}
 
 #send the request to get the HTML page
-page = requests.get(url,headers=headers)
+page = requests.get(args.url,headers=headers)
 
 soup = BeautifulSoup(page.content,'html.parser')
 
 #give desired price
-desired_price = 60000 #SET THE DESIRED PRICE HERE
+desired_price_of_item = args.desired_price #SET THE DESIRED PRICE HERE
 #get values
 print (soup.title.string)
-
+Float_price = 0
+b = 'a'
 
 def check_price():
   #finds the title of the product
@@ -57,7 +68,7 @@ def check_price():
   Float_price = float(appended_string)
 
   #give the desired price as input:
-  desired = str(desired_price)
+  desired = str(desired_price_of_item)
 
 
 def send_email():
@@ -79,12 +90,12 @@ def send_email():
 
   with smtplib.SMTP_SSL('smtp.gmail.com',465,context=context) as smtp:
     #required condition to be satisfied
-     if(Float_price <= desired_price):
+     if(Float_price <= desired_price_of_item):
        smtp.login(email_sender,email_password)
        smtp.sendmail(email_sender, email_receiver, em.as_string())
         
 #loop that allows the program to regularly check for prices
 while(True):
   check_price()
-  send_mail()
+  send_email()
   time.sleep(60 * 60)
